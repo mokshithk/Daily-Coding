@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rock Paper Scissors</title>
+    <style>
+        body {
+            background-color: rgb(25, 25, 25);
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+
+        .main-div {
+            margin-top: 120px;
+        }
+
+        .heading {
+            font-size: 30px;
+            margin-top: 20px;
+        }
+
+        .game-button {
+            border-radius: 100%;
+            background-color: rgb(25, 25, 25);
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+            .game-button:hover {
+                transform: scale(1.1);
+                box-shadow: 0px 4px 8px rgba(255, 255, 255, 0.5);
+            }
+
+        .game-image {
+            height: 100px;
+            border-radius: 100%;
+            margin: 15px;
+        }
+
+        .result {
+            font-size: 25px;
+            margin-top: 20px;
+            color: #00ff00;
+            animation: resultAnimation 0.3s ease-in-out;
+        }
+
+        @keyframes resultAnimation {
+            0% {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .moves {
+            font-size: 15px;
+            margin-top: 20px;
+        }
+
+        .score {
+            font-size: 20px;
+            margin-top: 20px;
+        }
+
+        .reset-button {
+            border: 1px solid black;
+            padding: 8px 18px;
+            font-size: 20px;
+            margin-top: 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-div">
+        <p class="heading">Rock Paper Scissors</p>
+
+        <button id="rock" class="game-button">
+            <img src="C:\Users\ASUS\Pictures\Screenshots\Screenshot 2024-07-13 162750.png" class="game-image" />
+        </button>
+        <button id="paper" class="game-button">
+            <img src="C:\Users\ASUS\Pictures\Screenshots\Screenshot 2024-07-13 162814.png" class="game-image" />
+        </button>
+        <button id="scissors" class="game-button">
+            <img src="C:\Users\ASUS\Pictures\Screenshots\Screenshot 2024-07-13 162827.png" class="game-image" />
+        </button>
+
+        <p class="js-result result"></p>
+        <p class="js-moves moves"></p>
+        <p class="js-score score"></p>
+
+        <button onclick="resetGame()" class="reset-button">Reset Score</button>
+
+        <script>
+            let score = JSON.parse(localStorage.getItem('score')) || { wins: 0, losses: 0, ties: 0 };
+            let moveCounts = { rock: 0, paper: 0, scissors: 0 };
+            let lastPlayerMove = '';
+            let playerMoveStreak = 0;
+
+            updateScore();
+
+            function playgame(playerMove) {
+                
+                moveCounts[playerMove]++;
+
+                
+                if (playerMove === lastPlayerMove) {
+                    playerMoveStreak++;
+                } else {
+                    playerMoveStreak = 0;
+                }
+                lastPlayerMove = playerMove;
+
+                
+                const computerMove = pickmove();
+
+                
+                let result;
+                if (playerMove === computerMove) {
+                    result = 'Tie';
+                    score.ties++; 
+                } else if (
+                    (playerMove === 'rock' && computerMove === 'scissors') ||
+                    (playerMove === 'paper' && computerMove === 'rock') ||
+                    (playerMove === 'scissors' && computerMove === 'paper')
+                ) {
+                    result = 'Win';
+                    score.wins++;
+                } else {
+                    result = 'Loss';
+                    score.losses++;
+                }
+
+                
+                localStorage.setItem('score', JSON.stringify(score));
+                updateScore();
+
+                document.querySelector('.js-result').innerHTML = `Result: ${result}`;
+                document.querySelector('.js-moves').innerHTML = `You picked ${playerMove}, AI picked ${computerMove}`;
+            }
+
+            function pickmove() {
+                if (playerMoveStreak >= 2) {
+                    
+                    if (lastPlayerMove === 'rock') return 'paper';
+                    if (lastPlayerMove === 'paper') return 'scissors';
+                    if (lastPlayerMove === 'scissors') return 'rock';
+                }
+
+                const randomn = Math.random();
+                let maxMove = Object.keys(moveCounts).reduce((a, b) => moveCounts[a] > moveCounts[b] ? a : b);
+                let weightedMove;
+
+                if (maxMove === 'rock') {
+                    weightedMove = 'paper';  
+                } else if (maxMove === 'paper') {
+                    weightedMove = 'scissors';
+                } else {
+                    weightedMove = 'rock';
+                }
+
+                return randomn < 0.6 ? weightedMove : ['rock', 'paper', 'scissors'][Math.floor(randomn * 3)];
+            }
+
+            function updateScore() {
+                document.querySelector('.js-score').innerHTML = `Wins: ${score.wins}; Losses: ${score.losses}; Ties: ${score.ties};`;
+            }
+
+            function resetGame() {
+                score = { wins: 0, losses: 0, ties: 0 };
+                localStorage.removeItem('score');
+                updateScore();
+                document.querySelector('.js-result').innerHTML = '';
+                document.querySelector('.js-moves').innerHTML = '';
+            }
+
+            
+            document.getElementById('rock').addEventListener('click', () => playgame('rock'));
+            document.getElementById('paper').addEventListener('click', () => playgame('paper'));
+            document.getElementById('scissors').addEventListener('click', () => playgame('scissors'));
+        </script>
+    </div>
+</body>
+</html>
