@@ -1,0 +1,12 @@
+arr = list(map(int, input("Enter array elements: ").split()))
+
+frequency = {}
+
+for i in arr:
+    if i in frequency:
+        frequency[i] += 1
+    else:
+        frequency[i] = 1
+
+for i in frequency:
+    print(i, ":", frequency[i])
